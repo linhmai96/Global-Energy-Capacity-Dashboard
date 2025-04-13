@@ -1,4 +1,0 @@
-apache-airflow-providers-google
-pandas
-pyarrow
-gcsfs
