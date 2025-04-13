@@ -210,13 +210,33 @@ This dashboard helps you quickly visualize and understand energy production tren
          NOTE: **Do not** trigger them yet. We will do this later in step 4
   
 3. Configuring the Spark transformation:
-   -    - Dataproc creates a temporary bucket udring creation. Locate that bucket. Make sure you have updated ```DATAPROC_TEMP_BUCKET``` in ```airflow/.env```:
-         ```
+   - Dataproc creates a temporary bucket udring creation. Locate that bucket. Make sure you have updated ```DATAPROC_TEMP_BUCKET``` in ```airflow/.env```:
+  
          DATAPROC_TEMP_BUCKET    = # Update dataproc-temporary bucket
-         ```
+
    - Upload your transformation script to the bucket you created in Step 1:
       ```
       gsutil cp -r spark_data_transformation.py gs://your-created-bucket/code/spark_data_transformation.py
+      ```
+4. Partioning and Clustering Bigquery dataset:
+   - In ```spark/spark_data_transformation.py```, choose which dimensions to partitioning and clustering. By default, the script partitioning ```run_date``` and clustering ```energy_type, energy_category```. 
+   
+   - Explain:
+         
+      - Partionining ```run_date``` easily compares “today vs. yesterday” or build time‑series analyses. And also boost performance (e.g. WHERE ```run_date = '2025-04-13'```) and save scanning costs.
+      - Clustering ```energy_type```, ```energy_category``` - the most-queried dimensions in the dataset. Fast aggregations with low latency and scanning costs. 
+   - Configure your dimensions if needed:
+      ```
+      # Write
+      (df_global_elec_capacity
+      .write
+      .format("bigquery")
+      .option("table", f"{args.dataset}.global_energy_report_2024")
+      .option("partitionField", "your-dimension")
+      .option("clusteringFields", "your-dimension,
+      your-dimension")
+      .save()
+      ) 
       ```
 
 #### Execute the Pipeline
