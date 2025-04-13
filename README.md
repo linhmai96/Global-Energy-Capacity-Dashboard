@@ -97,7 +97,7 @@ This dashboard helps you quickly visualize and understand energy production tren
 #### Prerequisites
 
 1. Google Cloud Platform account with billing **enabled**
-2. Download service account in json format with the following roles:
+2. Download service account in json format with the following roles. ```NOTE```: Refine your IAM roles if neccessary. These are just examples for a POC:
 
    - Storage Admin (for GCS buckets)
 
@@ -107,7 +107,7 @@ This dashboard helps you quickly visualize and understand energy production tren
 
    - Composer Admin (if using Cloud Composer for Airflow)
 
-   NOTE: Refine your IAM roles if neccessary. The roles above are for POC only
+
 
 3. Terraform
 
@@ -139,7 +139,7 @@ This dashboard helps you quickly visualize and understand energy production tren
       terraform plan
       terraform apply
       ```
-
+      ```NOTE```: 
 2. Deploy Airflow DAGs:
    
    You may deploy Airflow locally (via Docker) or use Cloud Composer.
@@ -156,10 +156,10 @@ This dashboard helps you quickly visualize and understand energy production tren
 
          ```
          GCP_PROJECT_ID= #Update your projectID</span>
-         GCP_GCS_BUCKET=#Update your bucket name
-         BIGQUERY_DATASET=#Update your dataset name
-         DATAPROC_NAME=#Update dataproc cluster name
-         DATAPROC_TEMP_BUCKET=#Update dataproctemporary bucket name
+         GCP_GCS_BUCKET=#Update your bucket
+         BIGQUERY_DATASET=#Update your dataset 
+         DATAPROC_NAME=#Update dataproc cluster
+         DATAPROC_TEMP_BUCKET=#Update dataproc-temporary bucket
          ```
       - Build and initialize the Docker image (only required for first time build or when dependencies change):
          
@@ -195,8 +195,7 @@ This dashboard helps you quickly visualize and understand energy production tren
          terraform plan
          terraform apply
          ```
-      -  Upload your DAG files to the Composer-managed bucket:
-
+      -  Upload your DAG files in ```airflow/dags/``` to the Composer-managed bucket:
          ```
          gsutil cp -r dag_data_ingest.py dag_data_transformation.py gs://your-cloudcomposer-created-bucket/dags/
          ```
@@ -205,11 +204,11 @@ This dashboard helps you quickly visualize and understand energy production tren
          NOTE: **Do not** trigger them yet. We will do this later in step 4
   
 3. Configuring the Spark transformation:
-   - Make sure you have specified variable DATAPROC_TEMP_BUCKET | GCP_GCS_BUCKET | BIGQUERY_DATASET in ```airflow/.env```:
+   - Make sure you have specified variables in ```airflow/.env```:
 
-         GCP_GCS_BUCKET=#Update your bucket name
-         BIGQUERY_DATASET=#Update your dataset name
-         DATAPROC_TEMP_BUCKET=#Update dataproctemporary bucket name
+         GCP_GCS_BUCKET=#Update your bucket
+         BIGQUERY_DATASET=#Update your dataset
+         DATAPROC_TEMP_BUCKET=#Update dataproctemporary bucket
    - Upload your transformation script to the bucket you created in Step 1:
       ```
       gsutil cp -r spark_data_transformation gs://your-created-bucket/dags/
@@ -217,7 +216,7 @@ This dashboard helps you quickly visualize and understand energy production tren
 
 #### Execute the Pipeline
 
-Trigger your Airflow DAGs to ingest data into GCS, submit Spark jobs on Dataproc, and load results into BigQuery. Once complete, connect Looker to your BigQuery dataset and import the dashboard definitions.
+Trigger your Airflow DAGs to ingest data into GCS, submit Spark jobs on Dataproc, and load results into BigQuery. Once complete, locate ```global_energy_report_2024``` in BigQuery. Connect Looker to your BigQuery dataset and import the dashboard definitions.
 
 #### Destroy cloud resources
 
