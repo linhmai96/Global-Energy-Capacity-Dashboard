@@ -97,7 +97,7 @@ This dashboard helps you quickly visualize and understand energy production tren
 #### Prerequisites
 
 1. Google Cloud Platform account with billing **enabled**
-2. Download service account in json format with the following roles. ```NOTE```: Refine your IAM roles if neccessary. These are just examples for a POC:
+3. Download service account in json format with the following roles. ```NOTE:``` Refine your IAM roles if neccessary. These are just examples for a POC:
 
    - Storage Admin (for GCS buckets)
 
@@ -117,14 +117,14 @@ This dashboard helps you quickly visualize and understand energy production tren
 
 #### Deployment and Configuration Steps
 
-1. Provision Google Cloud Infrastructure:
+1. #### Provision Google Cloud Infrastructure:
    - Ensure Terraform is installed (see [Terraform Installation guide](https://github.com/DataTalksClub/data-engineering-zoomcamp/tree/main/01-docker-terraform/1_terraform_gcp))
    - The configuration in /terraform/main.tf provisions the following resources:
      - Google Cloud Storage
      - Google Cloud BigQuery
      - Google Cloud Dataproc
      - Google Cloud Composer (Optional)
-   - Update the service account and other variables in terraform/variables.tf:
+   - Update the service account file path and other variables in ```terraform/variables.tf```:
 
       ```
       variable "credentials" {
@@ -139,27 +139,26 @@ This dashboard helps you quickly visualize and understand energy production tren
       terraform plan
       terraform apply
       ```
-      ```NOTE```: 
+
 2. Deploy Airflow DAGs:
    
-   You may deploy Airflow locally (via Docker) or use Cloud Composer.
+   You may deploy Airflow locally (via Docker) or use Cloud Composer (Optional).
    - **Local Deployment:**
       - Install Airflow (see [Airflow installation guide](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/cohorts/2022/week_2_data_ingestion/airflow/1_setup_official.md))
       
-      - In ```/airflow/docker-compose.yaml```, configure the service account credentials:
+      - In ```/airflow/docker-compose.yaml```, configure the service account file path:
   
          ```
          GOOGLE_APPLICATION_CREDENTIALS: path_to_your_credentials/google_credentials.json
-         AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT: 'google-cloud-platform://?extra__google_cloud_platform__key_path=/.google/credentials/google_credentials.json'
          ```
       - Update ```airflow/.env``` with project-specific variables:
 
          ```
-         GCP_PROJECT_ID= #Update your projectID</span>
-         GCP_GCS_BUCKET=#Update your bucket
-         BIGQUERY_DATASET=#Update your dataset 
-         DATAPROC_NAME=#Update dataproc cluster
-         DATAPROC_TEMP_BUCKET=#Update dataproc-temporary bucket
+         GCP_PROJECT_ID       = #Update your projectID
+         GCP_GCS_BUCKET       = #Update your bucket
+         BIGQUERY_DATASET     = #Update your dataset 
+         DATAPROC_NAME        = #Update dataproc cluster
+         DATAPROC_TEMP_BUCKET = #Update dataproc-temporary bucket
          ```
       - Build and initialize the Docker image (only required for first time build or when dependencies change):
          
@@ -195,28 +194,34 @@ This dashboard helps you quickly visualize and understand energy production tren
          terraform plan
          terraform apply
          ```
+      - Update environment variables in Cloud Composer:
+         ```
+         GCP_GCS_BUCKET       = # Update your bucket
+         BIGQUERY_DATASET     = # Update your dataset 
+         DATAPROC_NAME        = # Update dataproc cluster
+         DATAPROC_TEMP_BUCKET = # Update dataproc-temporary bucket
+         ```
       -  Upload your DAG files in ```airflow/dags/``` to the Composer-managed bucket:
          ```
-         gsutil cp -r dag_data_ingest.py dag_data_transformation.py gs://your-cloudcomposer-created-bucket/dags/
+         gsutil cp -r dag_data_ingest.py dag_data_transformation.py gs://your-cloud-composer-created-bucket/dags/
          ```
       - Open the Composer Airflow UI in the GCP Console: 
       ![alt text](pics/airflow_ui.png)
          NOTE: **Do not** trigger them yet. We will do this later in step 4
   
 3. Configuring the Spark transformation:
-   - Make sure you have specified variables in ```airflow/.env```:
-
-         GCP_GCS_BUCKET=#Update your bucket
-         BIGQUERY_DATASET=#Update your dataset
-         DATAPROC_TEMP_BUCKET=#Update dataproctemporary bucket
+   -    - Dataproc creates a temporary bucket udring creation. Locate that bucket. Make sure you have updated ```DATAPROC_TEMP_BUCKET``` in ```airflow/.env```:
+         ```
+         DATAPROC_TEMP_BUCKET    = # Update dataproc-temporary bucket
+         ```
    - Upload your transformation script to the bucket you created in Step 1:
       ```
-      gsutil cp -r spark_data_transformation gs://your-created-bucket/dags/
+      gsutil cp -r spark_data_transformation.py gs://your-created-bucket/code/spark_data_transformation.py
       ```
 
 #### Execute the Pipeline
 
-Trigger your Airflow DAGs to ingest data into GCS, submit Spark jobs on Dataproc, and load results into BigQuery. Once complete, locate ```global_energy_report_2024``` in BigQuery. Connect Looker to your BigQuery dataset and import the dashboard definitions.
+Trigger your Airflow DAGs to ingest data into GCS, submit Spark jobs on Dataproc, and load results into BigQuery. Once complete, locate ```global_energy_report_2024``` in BigQuery. Connect Looker to your the BigQuery dataset and import the dashboard definitions.
 
 #### Destroy cloud resources
 
