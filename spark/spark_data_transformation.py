@@ -67,11 +67,10 @@ df_global_elec_capacity = (
 )
 
 # Write
-(df_global_elec_capacity
- .write
- .format("bigquery")
- .option("table", f"{args.dataset}.global_energy_report_2024")
- .option("partitionField", "run_date")
- .option("clusteringFields", "energy_type,energy_category")
+df_global_elec_capacity \
+ .write \
+ .format("bigquery") \
+ .option("table", f"{args.dataset}.global_energy_report_2024") \
+ .option("partitionField", "run_date") \
+ .option("clusteringFields", "energy_type,energy_category") \
  .save()
-)
