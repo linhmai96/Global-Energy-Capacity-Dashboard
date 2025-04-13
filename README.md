@@ -223,7 +223,7 @@ This dashboard helps you quickly visualize and understand energy production tren
    
    - Explain:
          
-      - Partionining ```run_date``` easily compares “today vs. yesterday” or build time‑series analyses. And also boost performance (e.g. WHERE ```run_date = '2025-04-13'```) and save scanning costs.
+      - Partionining ```run_date``` easily compares “today vs. yesterday”. And also boost performance (e.g. ```WHERE run_date = '2025-04-13'```) and save scanning costs.
       - Clustering ```energy_type```, ```energy_category``` - the most-queried dimensions in the dataset. Fast aggregations with low latency and scanning costs. 
    - Configure your dimensions if needed:
       ```
